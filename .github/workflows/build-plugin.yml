@@ -9,18 +9,20 @@ jobs:
 
     steps:
       - name: Checkout plugin
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Qt 5.15.2
         uses: jurplel/install-qt-action@v4
         with:
           version: 5.15.2
+          host: windows
+          target: desktop
           arch: win64_msvc2019_64
           modules: qtserialport
           cache: true
 
       - name: Checkout DLT Viewer source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: COVESA/dlt-viewer
           path: dlt-viewer
@@ -30,7 +32,7 @@ jobs:
         shell: pwsh
         run: |
           cmake -S dlt-viewer -B dlt-build -G "Visual Studio 17 2022" -A x64 `
-            -DCMAKE_PREFIX_PATH="$env:Qt5_DIR" `
+            -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
             -DCMAKE_INSTALL_PREFIX="$env:GITHUB_WORKSPACE\dlt-sdk" `
             -DDLT_INSTALL_SDK=ON `
             -DDLT_PARSER=OFF
@@ -40,7 +42,7 @@ jobs:
         shell: pwsh
         run: |
           cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
-            -DCMAKE_PREFIX_PATH="$env:Qt5_DIR" `
+            -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
             -DDLT_VIEWER_SDK="$env:GITHUB_WORKSPACE\dlt-sdk\sdk"
 
       - name: Build FOTA plugin
