@@ -4,7 +4,7 @@
 #include <QObject>
 #include "plugininterface.h"
 
-#define FOTA_INJECTION_PLUGIN_VERSION "0.1.0"
+#define FOTA_INJECTION_PLUGIN_VERSION "0.2.0"
 
 class FotaInjectionPlugin : public QObject,
                             QDLTPluginInterface,
