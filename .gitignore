@@ -1,0 +1,11 @@
+build/
+*.user
+*.suo
+*.vcxproj
+*.vcxproj.filters
+*.pdb
+*.ilk
+*.obj
+*.dll
+*.lib
+*.log
