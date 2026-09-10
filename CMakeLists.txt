@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(NOT DEFINED DLT_VIEWER_SDK)
-    message(FATAL_ERROR "Define DLT_VIEWER_SDK con la ruta del SDK de DLT Viewer")
+    set(DLT_VIEWER_SDK "${CMAKE_CURRENT_SOURCE_DIR}/third_party/dlt-sdk")
 endif()
 
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets)

@@ -26,14 +26,14 @@ Para `5204`, `5200`, `5205` y `5218`, cambia el `service-id` y el contenido de `
 
 ## Compilacion
 
-El equipo actual tiene CMake y MSVC 2022, pero no tiene instalado el paquete de desarrollo Qt5. DLT Viewer incluye DLLs de ejecucion, pero no los headers ni `Qt5Config.cmake` necesarios para compilar. En un entorno con Qt5 de desarrollo, CMake y el SDK de DLT Viewer:
+El repositorio incluye una copia minima del SDK `qdlt` compatible con el DLT Viewer instalado: sus headers y `qdlt.lib`. Solo hace falta que el entorno de compilacion proporcione Qt5 de desarrollo.
 
 ```powershell
-cmake -S . -B build -DDLT_VIEWER_SDK="C:\ruta\al\DLTViewer\sdk"
+cmake -S . -B build -DCMAKE_PREFIX_PATH="C:\ruta\a\Qt\5.15.2\msvc2019_64"
 cmake --build build --config Release
 ```
 
-El proyecto busca `qdlt.lib` dentro de `DLT_VIEWER_SDK/lib` y necesita las librerias Qt5 compatibles con la version de DLT Viewer.
+El proyecto usa por defecto `third_party/dlt-sdk`. También puedes proporcionar otro SDK con `-DDLT_VIEWER_SDK=...`.
 
 ## Instalacion
 
