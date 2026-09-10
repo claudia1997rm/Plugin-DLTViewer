@@ -1,10 +1,12 @@
 #include "fota_injection_plugin.h"
 
 #include <QByteArray>
+#include <QEventLoop>
 #include <QFileInfo>
+#include <QTimer>
 
 FotaInjectionPlugin::FotaInjectionPlugin()
-    : control_(nullptr)
+    : control_(nullptr), onlineConnectionIndex_(-1)
 {
 }
 
@@ -49,7 +51,7 @@ bool FotaInjectionPlugin::saveConfig(QString)
 
 QStringList FotaInjectionPlugin::infoConfig()
 {
-    return QStringList() << QStringLiteral("Command: send <connection-index> <application-id> <context-id> <service-id> <data>")
+    return QStringList() << QStringLiteral("Commands: send or connect-send <connection-index> <application-id> <context-id> <service-id> <data>")
                          << QStringLiteral("Example: send 0 FOTA MAIN 5505 tcucpkg;package.iso;hash;/ota/package.iso");
 }
 
@@ -74,8 +76,13 @@ bool FotaInjectionPlugin::controlMsg(int, QDltMsg &)
     return true;
 }
 
-bool FotaInjectionPlugin::stateChanged(int, QDltConnection::QDltConnectionState, QString)
+bool FotaInjectionPlugin::stateChanged(int index, QDltConnection::QDltConnectionState connectionState, QString)
 {
+    if (connectionState == QDltConnection::QDltConnectionOnline) {
+        onlineConnectionIndex_ = index;
+    } else if (onlineConnectionIndex_ == index) {
+        onlineConnectionIndex_ = -1;
+    }
     return true;
 }
 
@@ -99,8 +106,43 @@ void FotaInjectionPlugin::configurationChanged()
 bool FotaInjectionPlugin::command(QString commandName, QList<QString> params)
 {
     error_.clear();
+    if (commandName.compare(QStringLiteral("connect-send"), Qt::CaseInsensitive) == 0) {
+        return connectAndSend(params);
+    }
     if (commandName.compare(QStringLiteral("send"), Qt::CaseInsensitive) != 0) {
-        setError(QStringLiteral("Unknown command. Use: send <connection-index> <application-id> <context-id> <service-id> <data>"));
+        setError(QStringLiteral("Unknown command. Use: send or connect-send <connection-index> <application-id> <context-id> <service-id> <data>"));
+        return false;
+    }
+    return send(params);
+}
+
+bool FotaInjectionPlugin::connectAndSend(QStringList params)
+{
+    if (control_ == nullptr) {
+        setError(QStringLiteral("DLT control is not initialized."));
+        return false;
+    }
+    if (params.isEmpty()) {
+        setError(QStringLiteral("Connection index is required."));
+        return false;
+    }
+
+    bool indexOk = false;
+    const int connectionIndex = params.at(0).toInt(&indexOk);
+    if (!indexOk || connectionIndex < 0) {
+        setError(QStringLiteral("Connection index must be a non-negative integer."));
+        return false;
+    }
+
+    onlineConnectionIndex_ = -1;
+    control_->connectEcu(connectionIndex);
+
+    QEventLoop waitLoop;
+    QTimer::singleShot(5000, &waitLoop, &QEventLoop::quit);
+    waitLoop.exec();
+
+    if (onlineConnectionIndex_ != connectionIndex) {
+        setError(QStringLiteral("ECU connection did not reach online state."));
         return false;
     }
     return send(params);

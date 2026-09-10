@@ -46,12 +46,14 @@ public:
 
 private:
     bool send(QStringList params);
+    bool connectAndSend(QStringList params);
     bool parseServiceId(const QString &value, int &serviceId);
     void setError(const QString &message);
 
     QDltControl *control_;
     QString error_;
     QStringList connections_;
+    int onlineConnectionIndex_;
 };
 
 #endif
