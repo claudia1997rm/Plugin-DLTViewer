@@ -17,8 +17,9 @@ jobs:
           version: 5.15.2
           host: windows
           target: desktop
-          arch: win64_msvc2019_64
+          arch: win64_msvc2017_64
           modules: qtserialport
+          aqtversion: '==3.2.*'
           cache: true
 
       - name: Checkout DLT Viewer source
