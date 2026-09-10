@@ -22,11 +22,12 @@ add_library(fotainjectionplugin MODULE
     fota_injection_plugin.h
 )
 
-target_include_directories(FotaInjectionPlugin PRIVATE
+target_include_directories(fotainjectionplugin PRIVATE
     "${DLT_VIEWER_SDK}/include"
+    "${DLT_VIEWER_SDK}/include/qdlt"
 )
 
-target_link_libraries(FotaInjectionPlugin PRIVATE
+target_link_libraries(fotainjectionplugin PRIVATE
     "${QDLT_LIBRARY}"
     Qt5::Core
     Qt5::Widgets
