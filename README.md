@@ -10,16 +10,19 @@ El plugin implementa la interfaz de control de DLT Viewer y llama a:
 QDltControl::sendInjection(connectionIndex, applicationId, contextId, serviceId, data)
 ```
 
-## Comando
+## Comandos
 
 ```text
 send <connection-index> <application-id> <context-id> <service-id> <data>
+connect-send <connection-index> <application-id> <context-id> <service-id> <data>
+connect-wait <connection-index> <expected-states> <timeout-seconds>
+connect-send-wait <connection-index> <application-id> <context-id> <service-id> <expected-states> <timeout-seconds> <data>
 ```
 
 Ejemplo:
 
 ```text
-send 0 FOTA MAIN 5505 tcucpkg;package.iso;hash;/ota/package.iso
+connect-send-wait 1 FOTA MAIN 5505 DISTRIBUTE_COMPLETE 600 tcucpkg;package.iso;hash;/ota/package.iso
 ```
 
 Para `5204`, `5200`, `5205` y `5218`, cambia el `service-id` y el contenido de `data` según corresponda.
@@ -51,6 +54,8 @@ El proyecto usa por defecto `third_party/dlt-sdk`. También puedes proporcionar 
 
 El filtro `FLASH_FOTA_2.dlf` es independiente y puede seguir cargándose a la vez.
 
-## Limitacion actual
+## Espera de estados
 
-El plugin ya tiene el envio de bajo nivel implementado, pero todavia no modifica el BAT para invocarlo. Antes de automatizar el flujo completo hay que confirmar el indice de conexion que usa DLT Viewer y probar una injection controlada.
+Los comandos `connect-send-wait` y `connect-wait` esperan los estados FOTA indicados, en orden y recibidos como nuevas trazas con `Application ID = FOTA`, antes de finalizar. Los estados se separan con comas, por ejemplo `INSTALL_PROGRESS,INSTALL_COMPLETE`; el timeout admite de 1 a 7200 segundos.
+
+`flashear_fota_guiado_plugin.bat` usa estos comandos para encadenar distribución, instalación, comprobación del vehículo, activación, espera de `StFota` y retorno a `IDLE`.
